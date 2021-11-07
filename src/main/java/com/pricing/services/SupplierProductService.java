@@ -1,6 +1,5 @@
 package com.pricing.services;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.pricing.calculator.PricingCalculator;
 import com.pricing.dao.SupplierProductRepository;
 import com.pricing.model.SupplierProduct;
 import com.pricing.model.enums.ProductStatus;
@@ -47,7 +47,7 @@ public class SupplierProductService {
 	{	
 		ProductStatus productStatus = ProductStatus.fromDescription(request.getStatusName());
 		List<SupplierProduct> supplierProducts = this.findAllByProductAndStatus(request.getProductId(), ProductStatus.getEqualAndHigherOrder(productStatus));
-		double suggestedPrice = this.calculatePrice(supplierProducts, request, productStatus.ordinal());
+		double suggestedPrice = PricingCalculator.calculatePrice(supplierProducts, request, productStatus.ordinal());
 		
 		return suggestedPrice;
 	}
@@ -68,33 +68,9 @@ public class SupplierProductService {
 		for (ProductStatus status : productStatuses)
 		{
 			List <SupplierProduct> filteredProducts = supplierProducts.stream().filter(supplierProduct -> supplierProduct.getStatus().getOrder() >= status.getOrder()).collect(Collectors.toList());
-			response.put(status.getDescription(), this.calculatePrice(filteredProducts, request, status.ordinal()));
+			response.put(status.getDescription(), PricingCalculator.calculatePrice(filteredProducts, request, status.ordinal()));
 		}
 		
 		return response;	
-	}
-	
-	/**
-	 * Calculate a price for a product according to a status
-	 * 
-	 * @param supplierProducts list of supplier products to compare
-	 * @param request built object from the parameters
-	 * @param statusId status id
-	 * 
-	 * @return the suggested price for the status id according to the parameters
-	 */
-	private double calculatePrice (List <SupplierProduct> supplierProducts, RequestPrice request, Integer statusId)
-	{
-		double suggestedPrice = request.getUpperBound(); 
-		SupplierProduct supplierProduct = supplierProducts.stream().min(Comparator.comparing(SupplierProduct::getPrice)).orElse(null);
-		
-		if (supplierProduct != null)
-		{
-			if (supplierProduct.getStatus().ordinal() == statusId.intValue())
-				suggestedPrice = Math.min(suggestedPrice, Math.max(request.getLowerBound(), supplierProduct.getPrice() - request.getX()));
-			else
-				suggestedPrice = Math.min(suggestedPrice, Math.max(request.getLowerBound(), supplierProduct.getPrice() - request.getY()));
-		}
-		return suggestedPrice;
 	}
 }
