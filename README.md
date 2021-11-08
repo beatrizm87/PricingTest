@@ -2,8 +2,15 @@
 L'api Princing permet le calcul du prix d'un produit selon un état et le calcul des prix d'un produit pour tous les états possibles.
 
 # Accès
+Vous pouvez accéder à l'API via le lien https://pricing-test-technique.herokuapp.com/
 
-Vous pouvez accéder à l'API via le lien https://pricing-test-technique.herokuapp.com/pricing.
+Vous pouvez afficher les donnés de la base de donnés via les liens:
+
+https://pricing-test-technique.herokuapp.com/products
+
+https://pricing-test-technique.herokuapp.com/suppliers
+
+https://pricing-test-technique.herokuapp.com/supplierProducts
 
 # Calculer le prix d'un produit selon un état 
 URL à appeler : https://pricing-test-technique.herokuapp.com/pricing/calculateByStatus
